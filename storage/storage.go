@@ -181,6 +181,8 @@ type Claims struct {
 	EmailVerified     bool
 
 	Groups []string
+
+	Custom map[string]string
 }
 
 // Data needed for PKCE (RFC 7636)
