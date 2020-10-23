@@ -182,7 +182,7 @@ type Claims struct {
 
 	Groups []string
 
-	Custom map[string]string
+	Custom map[string]interface{}
 }
 
 // Data needed for PKCE (RFC 7636)
