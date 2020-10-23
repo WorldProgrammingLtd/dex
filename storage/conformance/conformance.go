@@ -115,6 +115,7 @@ func testAuthRequestCRUD(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 		PKCE: codeChallenge,
 	}
@@ -148,6 +149,7 @@ func testAuthRequestCRUD(t *testing.T, s storage.Storage) {
 			Email:         "john.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a"},
+			Custom:		   map[string]string{ "yes": "no" },
 		},
 	}
 
@@ -203,6 +205,7 @@ func testAuthCodeCRUD(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 	}
 
@@ -225,6 +228,7 @@ func testAuthCodeCRUD(t *testing.T, s storage.Storage) {
 			Email:         "john.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a"},
+			Custom:		   map[string]string{ "yes": "no" },
 		},
 	}
 
@@ -346,6 +350,7 @@ func testRefreshTokenCRUD(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 		ConnectorData: []byte(`{"some":"data"}`),
 	}
@@ -400,6 +405,7 @@ func testRefreshTokenCRUD(t *testing.T, s storage.Storage) {
 			Email:         "john.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 		ConnectorData: []byte(`{"some":"data"}`),
 	}
@@ -861,6 +867,7 @@ func testGC(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 	}
 
@@ -911,6 +918,7 @@ func testGC(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 	}
 
@@ -1046,6 +1054,7 @@ func testTimezones(t *testing.T, s storage.Storage) {
 			Email:         "jane.doe@example.com",
 			EmailVerified: true,
 			Groups:        []string{"a", "b"},
+			Custom:		   map[string]string{ "foo": "bar" },
 		},
 	}
 	if err := s.CreateAuthCode(c); err != nil {
