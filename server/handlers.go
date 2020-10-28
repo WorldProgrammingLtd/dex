@@ -397,6 +397,12 @@ func (s *Server) handleConnectorLogin(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
+		identity, err = s.RunMiddleware(r.Context(), conn, identity)
+		if err != nil {
+			s.logger.Errorf("Failed to run middleware for login: %v", err)
+			s.renderError(r, w, http.StatusInternalServerError, fmt.Sprintf("Login error: %v", err))
+			return
+		}
 		redirectURL, err := s.finalizeLogin(identity, authReq, conn.Connector)
 		if err != nil {
 			s.logger.Errorf("Failed to finalize login: %v", err)
@@ -480,6 +486,13 @@ func (s *Server) handleConnectorCallback(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	identity, err = s.RunMiddleware(r.Context(), conn, identity)
+	if err != nil {
+		s.logger.Error("Failed to run middleware for login: %v", err)
+		s.renderError(r, w, http.StatusInternalServerError, "Login error.")
+		return
+	}
+
 	redirectURL, err := s.finalizeLogin(identity, authReq, conn.Connector)
 	if err != nil {
 		s.logger.Errorf("Failed to finalize login: %v", err)
@@ -500,6 +513,7 @@ func (s *Server) finalizeLogin(identity connector.Identity, authReq storage.Auth
 		Email:             identity.Email,
 		EmailVerified:     identity.EmailVerified,
 		Groups:            identity.Groups,
+		Custom:            identity.CustomClaims,
 	}
 
 	updater := func(a storage.AuthRequest) (storage.AuthRequest, error) {
@@ -1116,7 +1130,14 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 			s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)
 			return
 		}
-		ident = newIdent
+
+		// If we did a Refresh, run middleware on the result
+		ident, err = s.RunMiddleware(r.Context(), conn, newIdent)
+		if err != nil {
+			s.logger.Errorf("failed to run middleware for refresh: %v", err)
+			s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	claims := storage.Claims{
@@ -1126,6 +1147,7 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 		Email:             ident.Email,
 		EmailVerified:     ident.EmailVerified,
 		Groups:            ident.Groups,
+		Custom:            ident.CustomClaims,
 	}
 
 	accessToken, err := s.newAccessToken(client.ID, claims, scopes, refresh.Nonce, refresh.ConnectorID)
@@ -1309,6 +1331,12 @@ func (s *Server) handlePasswordGrant(w http.ResponseWriter, r *http.Request, cli
 		return
 	}
 
+	identity, err = s.RunMiddleware(r.Context(), conn, identity)
+	if err != nil {
+		s.tokenErrHelper(w, errServerError, fmt.Sprintf("Login error: %v", err), http.StatusInternalServerError)
+		return
+	}
+
 	// Build the claims to send the id token
 	claims := storage.Claims{
 		UserID:            identity.UserID,
@@ -1317,6 +1345,7 @@ func (s *Server) handlePasswordGrant(w http.ResponseWriter, r *http.Request, cli
 		Email:             identity.Email,
 		EmailVerified:     identity.EmailVerified,
 		Groups:            identity.Groups,
+		Custom:            identity.CustomClaims,
 	}
 
 	accessToken := storage.NewID()

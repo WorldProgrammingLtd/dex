@@ -162,12 +162,13 @@ func fromStorageRefreshToken(r storage.RefreshToken) RefreshToken {
 
 // Claims is a mirrored struct from storage with JSON struct tags.
 type Claims struct {
-	UserID            string   `json:"userID"`
-	Username          string   `json:"username"`
-	PreferredUsername string   `json:"preferredUsername"`
-	Email             string   `json:"email"`
-	EmailVerified     bool     `json:"emailVerified"`
-	Groups            []string `json:"groups,omitempty"`
+	UserID            string                 `json:"userID"`
+	Username          string                 `json:"username"`
+	PreferredUsername string                 `json:"preferredUsername"`
+	Email             string                 `json:"email"`
+	EmailVerified     bool                   `json:"emailVerified"`
+	Groups            []string               `json:"groups,omitempty"`
+	Custom            map[string]interface{} `json:"custom,omitempty"`
 }
 
 func fromStorageClaims(i storage.Claims) Claims {
@@ -178,6 +179,7 @@ func fromStorageClaims(i storage.Claims) Claims {
 		Email:             i.Email,
 		EmailVerified:     i.EmailVerified,
 		Groups:            i.Groups,
+		Custom:            i.Custom,
 	}
 }
 
@@ -189,6 +191,7 @@ func toStorageClaims(i Claims) storage.Claims {
 		Email:             i.Email,
 		EmailVerified:     i.EmailVerified,
 		Groups:            i.Groups,
+		Custom:            i.Custom,
 	}
 }
 
