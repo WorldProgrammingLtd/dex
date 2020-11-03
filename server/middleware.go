@@ -8,8 +8,8 @@ import (
 	"github.com/dexidp/dex/storage"
 
 	"github.com/dexidp/dex/middleware"
-	"github.com/dexidp/dex/middleware/groups"
 	"github.com/dexidp/dex/middleware/claims"
+	"github.com/dexidp/dex/middleware/groups"
 	"github.com/dexidp/dex/middleware/grpc"
 
 	"github.com/dexidp/dex/connector"
@@ -32,7 +32,7 @@ type MiddlewareConfig interface {
 var MiddlewaresConfig = map[string]func() MiddlewareConfig{
 	"claims": func() MiddlewareConfig { return new(claims.Config) },
 	"groups": func() MiddlewareConfig { return new(groups.Config) },
-	"grpc": func() MiddlewareConfig { return new(grpc.Config) },
+	"grpc":   func() MiddlewareConfig { return new(grpc.Config) },
 }
 
 // openMiddleware will parse the middleware config and open the middleware.
