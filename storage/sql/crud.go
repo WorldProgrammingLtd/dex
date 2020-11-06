@@ -276,7 +276,6 @@ func (c *conn) CreateAuthCode(a storage.AuthCode) error {
 		a.ConnectorID, a.ConnectorData, a.Expiry,
 		a.PKCE.CodeChallenge, a.PKCE.CodeChallengeMethod,
 	)
-
 	if err != nil {
 		if c.alreadyExistsCheck(err) {
 			return storage.ErrAlreadyExists
