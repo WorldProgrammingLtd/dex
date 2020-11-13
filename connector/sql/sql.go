@@ -5,16 +5,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	// Crypt support
 	"github.com/al45tair/passlib"
 
-	// Database drivers
+	// Database driver
 	_ "github.com/go-sql-driver/mysql"
+
+	// Improved Go SQL support
+	"github.com/jmoiron/sqlx"
+
+	// Database driver
 	_ "github.com/lib/pq"
+
+	// Database driver
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/jmoiron/sqlx"
+	// Used to do case-folding
+	"golang.org/x/text/cases"
 
 	"github.com/dexidp/dex/connector"
 	"github.com/dexidp/dex/pkg/log"
@@ -70,6 +79,27 @@ type UserQuery struct {
 	//   FROM Users
 	//   WHERE username=:username OR email=:username
 	//
+	// It will also make the following additional substitutions:
+	//
+	//   :username_lower    - the username, transformed to lowercase
+	//   :username_upper    - the username, transformed to UPPERCASE
+	//   :username_casefold - the case-folded version of username
+	//
+	// These are Unicode aware.  The latter is NOT suitable for display to
+	// the user, but it *is* the right way to make usernames case-insensitive;
+	// that is, for proper Unicode case-sensitivity, you should store and
+	// search by *case-folded* username, but always display a non-case-folded
+	// username.
+	//
+	// A case-insensitive example is therefore:
+	//
+	//   SELECT id, username, email, name, password
+	//   FROM Users
+	//   WHERE folded_username=:username_casefold OR email=:username
+	//
+	// Note the extra column "folded_username" in addition to the normal
+	// "username" column.
+	//
 	QueryByName string `json:"queryByUsername"`
 
 	// QueryByID will substitute a ":userid" argument, e.g.
@@ -78,7 +108,7 @@ type UserQuery struct {
 	//   FROM Users
 	//   WHERE id=:userid
 	//
-	QueryByID   string `json:"queryById"`
+	QueryByID string `json:"queryById"`
 
 	// UpdatePassword updates the password; ":userid" and ":password"
 	// are substituted, e.g.
@@ -200,7 +230,6 @@ var (
 )
 
 func (c *sqlConnector) identityFromRow(row map[string]interface{}) (ident connector.Identity, err error) {
-
 	var ok bool
 
 	id := row[c.UserQuery.IDColumn]
@@ -244,13 +273,17 @@ func (c *sqlConnector) identityFromRow(row map[string]interface{}) (ident connec
 	return ident, nil
 }
 
+var caseFolder = cases.Fold()
+
 func (c *sqlConnector) Login(ctx context.Context, s connector.Scopes,
 	username, password string) (ident connector.Identity,
 	validPass bool, err error) {
-
 	rows, err := c.db.NamedQueryContext(ctx, c.UserQuery.QueryByName,
 		map[string]interface{}{
-			"username": username,
+			"username":          username,
+			"username_lower":    strings.ToLower(username),
+			"username_upper":    strings.ToUpper(username),
+			"username_casefold": caseFolder.String(username),
 		})
 	if err != nil {
 		return connector.Identity{}, false, err
@@ -304,7 +337,7 @@ func (c *sqlConnector) Login(ctx context.Context, s connector.Scopes,
 		} else {
 			_, err = c.db.NamedExecContext(ctx, c.UserQuery.UpdatePassword,
 				map[string]interface{}{
-					"userid": ident.UserID,
+					"userid":   ident.UserID,
 					"password": newPassword,
 				})
 
@@ -388,7 +421,6 @@ func (c *sqlConnector) groups(ctx context.Context, userID string) ([]string,
 
 func (c *sqlConnector) Refresh(ctx context.Context, s connector.Scopes,
 	ident connector.Identity) (newIdent connector.Identity, err error) {
-
 	var refreshData sqlRefreshData
 	if err := json.Unmarshal(ident.ConnectorData, &refreshData); err != nil {
 		return ident,
