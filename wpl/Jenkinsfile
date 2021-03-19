@@ -16,7 +16,7 @@ spec:
     command: ['cat']
     tty: true
   - name: golang
-    image: golang:1.16rc1-buster
+    image: golang:1.16-buster
     command: ['cat']
     tty: true
   - name: kaniko
@@ -183,6 +183,8 @@ spec:
         stage ('Verify proto') {
             steps {
                 container('golang') {
+                    // verify-proto needs unzip
+                    sh 'apt-get update && apt-get -y install unzip'
                     sh 'make verify-proto'
                 }
             }
