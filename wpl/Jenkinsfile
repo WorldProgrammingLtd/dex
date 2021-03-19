@@ -60,8 +60,8 @@ spec:
         containerPort: 35357
   - name: openldap
     image: osixia/openldap:1.4.0
-    args:
-      - --copy-service
+    command: ['cat']
+    tty: true
     environment:
       - name: LDAP_BASE_DN
         value: "dc=example,dc=org"
@@ -74,13 +74,6 @@ spec:
         containerPort: 389
       - name: ldaps
         containerPort: 636
-    volumeMounts:
-      - name: workspace-volume
-        mountPath: /container/service/slapd/assets/certs
-        subPath: connector/ldap/testdata/certs
-      - name: workspace-volume
-        mountPath: /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif
-        subPath: connector/ldap/testdata/schema.ldif
   volumes:
     - name: kaniko-secret
       secret:
@@ -140,6 +133,13 @@ spec:
                 DEX_KEYSTONE_ADMIN_PASS = 'DEMO_PASS'
             }
             steps {
+                // Configure and start the LDAP server first
+                container('openldap') {
+                    sh 'ln -s connector/ldap/testdata/certs /container/service/slapd/assets/certs'
+                    sh 'ln -s connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
+                    sh 'nohup /container/tool/run > logs/ldap.log 2>&1 &'
+                }
+                // Now run the tests
                 container('golang') {
                     sh 'make testall'
                 }
