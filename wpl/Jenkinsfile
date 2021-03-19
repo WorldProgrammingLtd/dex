@@ -154,6 +154,7 @@ spec:
             post {
                 always {
                     script {
+                        sh 'mkdir -p logs'
                         logData = containerLog('postgres', returnLog: true)
                         writeFile(file: 'logs/postgres.log', text: logData)
                         logData = containerLog('mysql', returnLog: true)
