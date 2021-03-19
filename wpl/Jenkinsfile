@@ -58,6 +58,29 @@ spec:
         containerPort: 5000
       - name: keystone-admin
         containerPort: 35357
+  - name: openldap
+    image: osixia/openldap:1.4.0
+    args:
+      - --copy-service
+    environment:
+      - name: LDAP_BASE_DN
+        value: "dc=example,dc=org"
+      - name: LDAP_TLS
+        value: "true"
+      - name: LDAP_TLS_VERIFY_CLIENT
+        value: "try"
+    ports:
+      - name: ldap
+        containerPort: 389
+      - name: ldaps
+        containerPort: 636
+    volumeMounts:
+      - name: workspace-volume
+        mountPath: /container/service/slapd/assets/certs
+        subPath: connector/ldap/testdata/certs
+      - name: workspace-volume
+        mountPath: /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif
+        subPath: connector/ldap/testdata/schema.ldif
   volumes:
     - name: kaniko-secret
       secret:
