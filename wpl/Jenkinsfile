@@ -1,0 +1,66 @@
+pipeline {
+    agent {
+        kubernetes {
+            cloud 'internal'
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: git
+    image: alpine/git:v2.26.2
+    command: ['cat']
+    tty: true
+  - name: kaniko
+    image: kaniko-project/executor:debug
+    command: ['/busybox/cat']
+    tty: true
+    volumeMounts:
+      - name: kaniko-secret
+        mountPath: /kaniko/.docker
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+        }
+    }
+    options {
+        timeout(time: 15, unit: 'MINUTES', activity: true)
+	    disableConcurrentBuilds()
+	    buildDiscarder(logRotator(numToKeepStr: '20'))
+	    timestamps()
+	    skipDefaultCheckout()
+	    ansiColor('xterm')
+    }
+    triggers {
+	    pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        stage ('Checkout') {
+            steps {
+		        container('git') {
+		            checkout scm
+		            script {
+			            imageTag = sh(returnStdout: true,
+				                      script: "git describe --tags --match 'v*.*.*'").trim()
+			            currentBuild.displayName = imageTag
+			            echo "Building dex:${imageTag}"
+		            }
+		        }
+            }
+        }
+
+        stage ('Build image') {
+            steps {
+		        container('kaniko') {
+		            sh "/kaniko/executor -f Dockerfile -c `pwd` --destination=docker.worldprogramming.com/dex:${imageTag}}"
+		        }
+	        }
+        }
+    }
+}
