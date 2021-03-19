@@ -135,8 +135,9 @@ spec:
             steps {
                 // Configure and start the LDAP server first
                 container('openldap') {
-                    sh 'ln -s connector/ldap/testdata/certs /container/service/slapd/assets/certs'
-                    sh 'ln -s connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
+                    sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
+                    sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
+                    sh 'ls -lR /container/service/slapd > logs/ldap-files.log'
                     sh 'mkdir -p logs'
                     sh 'nohup /container/tool/run > logs/ldap.log 2>&1 &'
                 }
