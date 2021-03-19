@@ -119,7 +119,7 @@ spec:
                     sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
                     sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
                     sh 'touch /start'
-                    sh 'while ! ldapwhoami -D cn=admin,dc=example.dc=org -w admin; do; sleep 1; done'
+                    sh 'while ! ldapwhoami -D cn=admin,dc=example.dc=org -w admin; do sleep 1; done'
                 }
             }
         }
