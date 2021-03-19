@@ -63,7 +63,7 @@ spec:
     command:
       - "/bin/sh"
       - "-c"
-      - "while [ ! -f /start ]; do sleep 1; done; exec /container/tool/run"
+      - "while [ ! -f /start ]; do sleep 1; done; exec /container/tool/run --copy-service"
     environment:
       - name: LDAP_BASE_DN
         value: "dc=example,dc=org"
