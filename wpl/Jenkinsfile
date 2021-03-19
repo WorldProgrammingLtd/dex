@@ -155,15 +155,15 @@ spec:
                 always {
                     script {
                         sh 'mkdir -p logs'
-                        logData = containerLog('postgres', returnLog: true)
+                        logData = containerLog(name: 'postgres', returnLog: true)
                         writeFile(file: 'logs/postgres.log', text: logData)
-                        logData = containerLog('mysql', returnLog: true)
+                        logData = containerLog(name: 'mysql', returnLog: true)
                         writeFile(file: 'logs/mysql.log', text: logData)
-                        logData = containerLog('etcd', returnLog: true)
+                        logData = containerLog(name: 'etcd', returnLog: true)
                         writeFile(file: 'logs/etcd.log', text: logData)
-                        logData = containerLog('keystone', returnLog: true)
+                        logData = containerLog(name: 'keystone', returnLog: true)
                         writeFile(file: 'logs/keystone.log', text: logData)
-                        logData = containerLog('openldap', returnLog: true)
+                        logData = containerLog(name: 'openldap', returnLog: true)
                         writeFile(file: 'logs/openldap.log', text: logData)
                     }
 
