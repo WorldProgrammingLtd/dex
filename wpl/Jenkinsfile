@@ -1,3 +1,5 @@
+def imageTag = "unknown"
+
 pipeline {
     agent {
         kubernetes {
@@ -58,7 +60,7 @@ spec:
         stage ('Build image') {
             steps {
 		        container('kaniko') {
-		            sh "/kaniko/executor -f Dockerfile -c `pwd` --destination=docker.worldprogramming.com/dex:${imageTag}}"
+		            sh "/kaniko/executor -f Dockerfile -c `pwd` --destination=docker.worldprogramming.com/dex:${imageTag}"
 		        }
 	        }
         }
