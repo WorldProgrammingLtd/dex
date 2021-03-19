@@ -59,7 +59,7 @@ type opener interface {
 }
 
 func testDB(t *testing.T, o opener, withTransactions bool) {
-	// t.Fatal has a bad habbit of not actually printing the error
+	// t.Fatal has a bad habit of not actually printing the error
 	fatal := func(i interface{}) {
 		fmt.Fprintln(os.Stdout, i)
 		t.Fatal(i)
@@ -83,10 +83,6 @@ func testDB(t *testing.T, o opener, withTransactions bool) {
 			conformance.RunTransactionTests(t, newStorage)
 		})
 	}
-}
-
-func TestSQLite3(t *testing.T) {
-	testDB(t, &SQLite3{":memory:"}, false)
 }
 
 func getenv(key, defaultVal string) string {

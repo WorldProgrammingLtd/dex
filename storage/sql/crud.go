@@ -1306,6 +1306,8 @@ func (c *conn) ListMiddleware() ([]storage.Middleware, error) {
 	if err != nil {
 		return []storage.Middleware{}, err
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		mware, err := scanMiddleware(rows)
 		if err != nil {

@@ -157,7 +157,11 @@ func (c *conn) CreateAuthCode(a storage.AuthCode) error {
 func (c *conn) GetAuthCode(id string) (a storage.AuthCode, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageTimeout)
 	defer cancel()
-	err = c.getKey(ctx, keyID(authCodePrefix, id), &a)
+	var ac AuthCode
+	err = c.getKey(ctx, keyID(authCodePrefix, id), &ac)
+	if err == nil {
+		a = toStorageAuthCode(ac)
+	}
 	return a, err
 }
 
@@ -335,13 +339,13 @@ func (c *conn) ListPasswords() (passwords []storage.Password, err error) {
 func (c *conn) CreateOfflineSessions(s storage.OfflineSessions) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageTimeout)
 	defer cancel()
-	return c.txnCreate(ctx, keySession(offlineSessionPrefix, s.UserID, s.ConnID), fromStorageOfflineSessions(s))
+	return c.txnCreate(ctx, keySession(s.UserID, s.ConnID), fromStorageOfflineSessions(s))
 }
 
 func (c *conn) UpdateOfflineSessions(userID string, connID string, updater func(s storage.OfflineSessions) (storage.OfflineSessions, error)) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageTimeout)
 	defer cancel()
-	return c.txnUpdate(ctx, keySession(offlineSessionPrefix, userID, connID), func(currentValue []byte) ([]byte, error) {
+	return c.txnUpdate(ctx, keySession(userID, connID), func(currentValue []byte) ([]byte, error) {
 		var current OfflineSessions
 		if len(currentValue) > 0 {
 			if err := json.Unmarshal(currentValue, &current); err != nil {
@@ -360,7 +364,7 @@ func (c *conn) GetOfflineSessions(userID string, connID string) (s storage.Offli
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageTimeout)
 	defer cancel()
 	var os OfflineSessions
-	if err = c.getKey(ctx, keySession(offlineSessionPrefix, userID, connID), &os); err != nil {
+	if err = c.getKey(ctx, keySession(userID, connID), &os); err != nil {
 		return
 	}
 	return toStorageOfflineSessions(os), nil
@@ -369,7 +373,7 @@ func (c *conn) GetOfflineSessions(userID string, connID string) (s storage.Offli
 func (c *conn) DeleteOfflineSessions(userID string, connID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultStorageTimeout)
 	defer cancel()
-	return c.deleteKey(ctx, keySession(offlineSessionPrefix, userID, connID))
+	return c.deleteKey(ctx, keySession(userID, connID))
 }
 
 func (c *conn) CreateConnector(connector storage.Connector) error {
@@ -561,8 +565,8 @@ func (c *conn) txnUpdate(ctx context.Context, key string, update func(current []
 
 func keyID(prefix, id string) string       { return prefix + id }
 func keyEmail(prefix, email string) string { return prefix + strings.ToLower(email) }
-func keySession(prefix, userID, connID string) string {
-	return prefix + strings.ToLower(userID+"|"+connID)
+func keySession(userID, connID string) string {
+	return offlineSessionPrefix + strings.ToLower(userID+"|"+connID)
 }
 
 func (c *conn) CreateDeviceRequest(d storage.DeviceRequest) error {

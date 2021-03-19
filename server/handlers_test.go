@@ -9,6 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	gosundheit "github.com/AppsFlyer/go-sundheit"
+	"github.com/AppsFlyer/go-sundheit/checks"
+
 	"github.com/dexidp/dex/storage"
 )
 
@@ -26,20 +29,23 @@ func TestHandleHealth(t *testing.T) {
 	}
 }
 
-type badStorage struct {
-	storage.Storage
-}
-
-func (b *badStorage) CreateAuthRequest(r storage.AuthRequest) error {
-	return errors.New("storage unavailable")
-}
-
 func TestHandleHealthFailure(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	httpServer, server := newTestServer(ctx, t, func(c *Config) {
-		c.Storage = &badStorage{c.Storage}
+		c.HealthChecker = gosundheit.New()
+
+		c.HealthChecker.RegisterCheck(&gosundheit.Config{
+			Check: &checks.CustomCheck{
+				CheckName: "fail",
+				CheckFunc: func() (details interface{}, err error) {
+					return nil, errors.New("error")
+				},
+			},
+			InitiallyPassing: false,
+			ExecutionPeriod:  1 * time.Second,
+		})
 	})
 	defer httpServer.Close()
 
