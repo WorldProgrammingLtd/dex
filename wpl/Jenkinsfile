@@ -1,5 +1,7 @@
 def imageTag = "unknown"
 
+// This is based on the CI workflow from .github/workflows/ci.yaml
+
 pipeline {
     agent {
         kubernetes {
@@ -13,6 +15,10 @@ spec:
     image: alpine/git:v2.26.2
     command: ['cat']
     tty: true
+  - name: golang
+    image: docker.worldprogramming.com/golang:1.16rc1-buster
+    command: ['cat']
+    tty: true
   - name: kaniko
     image: kaniko-project/executor:debug
     command: ['/busybox/cat']
@@ -20,6 +26,38 @@ spec:
     volumeMounts:
       - name: kaniko-secret
         mountPath: /kaniko/.docker
+  - name: postgres
+    image: postgres:10.8
+    ports:
+      - name: postgres
+        containerPort: 5432
+  - name: mysql
+    image: mysql:5.7
+    ports:
+      - name: mysql
+        containerPort: 3306
+    env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: root
+      - name: MYSQL_DATABASE
+        value: dex
+  - name: etcd
+    image: gcr.io/etcd-development/etcd:v3.2.9
+    ports:
+      - name: etcd
+        containerPort: 2379
+    env:
+      - name: ETCD_LISTEN_CLIENT_URLS
+        value: http://0.0.0.0:2379
+      - name: ETCD_ADVERTISE_CLIENT_URLS
+        value: http://0.0.0.0:2379
+  - name: keystone
+    image: openio/openstack-keystone:pike
+    ports:
+      - name: keystone
+        containerPort: 5000
+      - name: keystone-admin
+        containerPort: 35357
   volumes:
     - name: kaniko-secret
       secret:
@@ -54,6 +92,30 @@ spec:
 			            echo "Building dex:${imageTag}"
 		            }
 		        }
+            }
+        }
+
+        stage ('Test') {
+            steps {
+                container('golang') {
+                    sh 'make testall'
+                }
+            }
+        }
+
+        stage ('Lint') {
+            steps {
+                container('golang') {
+                    sh 'make lint'
+                }
+            }
+        }
+
+        stage ('Verify proto') {
+            steps {
+                container('golang') {
+                    sh 'make verify-proto'
+                }
             }
         }
 
