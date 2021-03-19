@@ -64,7 +64,7 @@ spec:
       - "/bin/sh"
       - "-c"
       - "while [ ! -f /start ]; do sleep 1; done; exec /container/tool/run --copy-service"
-    environment:
+    env:
       - name: LDAP_BASE_DN
         value: "dc=example,dc=org"
       - name: LDAP_TLS
