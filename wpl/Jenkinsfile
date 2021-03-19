@@ -137,8 +137,8 @@ spec:
                 container('openldap') {
                     sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
                     sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
-                    sh 'ls -lR /container/service/slapd > logs/ldap-files.log'
                     sh 'mkdir -p logs'
+                    sh 'ls -lR /container/service/slapd > logs/ldap-files.log'
                     sh 'nohup /container/tool/run > logs/ldap.log 2>&1 &'
                 }
                 // Now run the tests
