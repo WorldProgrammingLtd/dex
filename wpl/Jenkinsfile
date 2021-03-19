@@ -60,8 +60,10 @@ spec:
         containerPort: 35357
   - name: openldap
     image: osixia/openldap:1.4.0
-    command: ['cat']
-    tty: true
+    command:
+      - "/bin/sh"
+      - "-c"
+      - "while [ ! -f /start ]; do sleep 1; done; exec /container/tool/run"
     environment:
       - name: LDAP_BASE_DN
         value: "dc=example,dc=org"
@@ -111,6 +113,17 @@ spec:
             }
         }
 
+        stage ('Start LDAP') {
+            steps {
+                container('openldap') {
+                    sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
+                    sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
+                    sh 'touch /start'
+                    sh 'while ! ldapwhoami -D cn=admin,dc=example.dc=org -w admin; do; sleep 1; done'
+                }
+            }
+        }
+
         stage ('Test') {
             environment {
                 DEX_MYSQL_DATABASE = 'dex'
@@ -133,14 +146,6 @@ spec:
                 DEX_KEYSTONE_ADMIN_PASS = 'DEMO_PASS'
             }
             steps {
-                // Configure and start the LDAP server first
-                container('openldap') {
-                    sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
-                    sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
-                    sh 'mkdir -p logs'
-                    sh 'ls -lR /container/service/slapd > logs/ldap-files.log'
-                    sh 'nohup /container/tool/run > logs/ldap.log 2>&1 &'
-                }
                 // Now run the tests
                 container('golang') {
                     sh 'make testall'
