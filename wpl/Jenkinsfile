@@ -153,6 +153,17 @@ spec:
             }
             post {
                 always {
+                    logData = containerLog('postgres', returnLog: true)
+                    writeFile(file: 'logs/postgres.log', text: logData)
+                    logData = containerLog('mysql', returnLog: true)
+                    writeFile(file: 'logs/mysql.log', text: logData)
+                    logData = containerLog('etcd', returnLog: true)
+                    writeFile(file: 'logs/etcd.log', text: logData)
+                    logData = containerLog('keystone', returnLog: true)
+                    writeFile(file: 'logs/keystone.log', text: logData)
+                    logData = containerLog('openldap', returnLog: true)
+                    writeFile(file: 'logs/openldap.log', text: logData)
+
                     archiveArtifacts allowEmptyArchive: true, artifacts: 'logs/*.log', onlyIfSuccessful: false
                 }
             }
