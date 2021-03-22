@@ -173,10 +173,10 @@ spec:
                         writeFile(file: 'logs/keystone.log', text: logData)
                         logData = containerLog(name: 'openldap', returnLog: true)
                         writeFile(file: 'logs/openldap.log', text: logData)
-                        writeFile(file: 'version', text: imageTag)
+                        writeFile(file: 'version.txt', text: imageTag)
                     }
 
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'version,bin/dex,logs/*.log', onlyIfSuccessful: false
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'version.txt,bin/dex,logs/*.log', onlyIfSuccessful: false
                 }
             }
         }
