@@ -124,6 +124,14 @@ spec:
             }
         }
 
+        stage ('Build') {
+            steps {
+                container('golang') {
+                    sh 'make'
+                }
+            }
+        }
+
         stage ('Test') {
             environment {
                 DEX_MYSQL_DATABASE = 'dex'
