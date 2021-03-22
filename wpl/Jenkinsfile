@@ -176,7 +176,7 @@ spec:
                         writeFile(file: 'version.txt', text: imageTag)
                     }
 
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'version.txt,bin/dex,logs/*.log,web', onlyIfSuccessful: false
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'version.txt,bin/dex,logs/*.log,web/**', onlyIfSuccessful: false
                 }
             }
         }
