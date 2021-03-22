@@ -63,7 +63,7 @@ spec:
     command:
       - "/bin/sh"
       - "-c"
-      - "while [ ! -f /start ]; do sleep 1; done; exec /container/tool/run --copy-service"
+      - "mkfifo /tmp/start; cat /tmp/start; exec /container/tool/run --copy-service"
     env:
       - name: LDAP_BASE_DN
         value: "dc=example,dc=org"
@@ -118,7 +118,7 @@ spec:
                 container('openldap') {
                     sh 'cp -r connector/ldap/testdata/certs /container/service/slapd/assets/'
                     sh 'cp connector/ldap/testdata/schema.ldif /container/service/slapd/assets/config/bootstrap/ldif/99-schema.ldif'
-                    sh 'touch /start'
+                    sh 'echo "Starting LDAP" > /tmp/start '
                     sh 'while ! ldapwhoami -D cn=admin,dc=example,dc=org -w admin; do sleep 1; done'
                 }
             }
