@@ -16,7 +16,7 @@ spec:
     command: ['cat']
     tty: true
   - name: golang
-    image: golang:1.16-buster
+    image: docker.worldprogramming.com/go-centos:1.16.2
     command: ['cat']
     tty: true
   - name: kaniko
