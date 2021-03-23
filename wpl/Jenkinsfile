@@ -192,8 +192,6 @@ spec:
         stage ('Verify proto') {
             steps {
                 container('golang') {
-                    // verify-proto needs unzip
-                    sh 'apt-get update && apt-get -y install unzip'
                     sh 'make verify-proto'
                 }
             }
