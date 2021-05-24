@@ -52,6 +52,10 @@ type Config struct {
 	// wil use "Username".
 	UsernamePrompt string `json:"usernamePrompt,omitempty"`
 
+	// ForgotPassword allows users to specify a link that will appear on the
+	// password login page.
+	ForgotPassword *connector.Link `json:"forgotPassword,omitempty"`
+
 	// User queries, used to fetch user information
 	UserQuery UserQuery `json:"userQuery"`
 
@@ -491,4 +495,8 @@ func (c *sqlConnector) Refresh(ctx context.Context, s connector.Scopes,
 
 func (c *sqlConnector) Prompt() string {
 	return c.UsernamePrompt
+}
+
+func (c *sqlConnector) ForgotPassword() *connector.Link {
+	return c.Config.ForgotPassword
 }
