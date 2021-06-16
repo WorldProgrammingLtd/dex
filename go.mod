@@ -27,12 +27,12 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
 	go.etcd.io/etcd/client/v3 v3.5.0-alpha.0
-	go.etcd.io/etcd/pkg/v3 v3.5.0-alpha.0
+	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420
 	golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c
 	google.golang.org/api v0.46.0
-	google.golang.org/grpc v1.37.0
+	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 	gopkg.in/square/go-jose.v2 v2.5.1
 	sigs.k8s.io/testing_frameworks v0.1.2
