@@ -4,40 +4,22 @@ def imageTag = "unknown"
 
 pipeline {
     agent {
-        kubernetes {
-            cloud 'internal'
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: git
-    image: alpine/git:v2.26.2
-    command: ['cat']
-    tty: true
-  - name: golang
-    image: docker.worldprogramming.com/go-centos:1.16.2
-    command: ['cat']
-    tty: true
-"""
-        }
+        label "windows && x86 && ci"
     }
     options {
         timeout(time: 15, unit: 'MINUTES', activity: true)
 	    disableConcurrentBuilds()
 	    buildDiscarder(logRotator(numToKeepStr: '20'))
 	    timestamps()
-	    skipDefaultCheckout()
-	    ansiColor('xterm')
     }
     triggers {
 	    pollSCM('H/5 * * * *')
     }
 
     stages {
+              /*
         stage ('Checkout') {
             steps {
-		        container('git') {
 		            checkout scm
 		            script {
 			            imageTag = sh(returnStdout: true,
@@ -45,18 +27,14 @@ spec:
 			            currentBuild.displayName = imageTag
 			            echo "Building dex:${imageTag}"
 		            }
-		        }
             }
         }
+                */
 
         stage ('Build') {
             steps {
-                container('golang') {
-                  sh 'mkdir bin'
-                  sh 'CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/dex.exe ./cmd/dex'
-                }
+                bat '"c:/program files/git/bin/sh" -c make'
             }
         }
-
     }
 }
