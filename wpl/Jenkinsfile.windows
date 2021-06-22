@@ -1,0 +1,44 @@
+def imageTag = "unknown"
+
+// This is based on the CI workflow from .github/workflows/ci.yaml
+
+pipeline {
+    agent {
+        label "windows && x86 && ci"
+    }
+    options {
+        timeout(time: 15, unit: 'MINUTES', activity: true)
+	    disableConcurrentBuilds()
+	    buildDiscarder(logRotator(numToKeepStr: '20'))
+	    timestamps()
+	    skipDefaultCheckout()
+	    ansiColor('xterm')
+    }
+    triggers {
+	    pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        stage ('Checkout') {
+            steps {
+		        container('git') {
+		            checkout scm
+		            script {
+			            imageTag = sh(returnStdout: true,
+				                      script: "git describe --tags --match 'v*.*.*'").trim()
+			            currentBuild.displayName = imageTag
+			            echo "Building dex:${imageTag}"
+		            }
+		        }
+            }
+        }
+
+        stage ('Build') {
+            steps {
+                container('golang') {
+                    sh 'make'
+                }
+            }
+        }
+    }
+}
