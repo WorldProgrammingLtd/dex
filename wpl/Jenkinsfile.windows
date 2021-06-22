@@ -21,7 +21,6 @@ pipeline {
     stages {
         stage ('Checkout') {
             steps {
-		        container('git') {
 		            checkout scm
 		            script {
 			            imageTag = sh(returnStdout: true,
@@ -29,15 +28,12 @@ pipeline {
 			            currentBuild.displayName = imageTag
 			            echo "Building dex:${imageTag}"
 		            }
-		        }
             }
         }
 
         stage ('Build') {
             steps {
-                container('golang') {
-                    sh 'make'
-                }
+                sh 'make'
             }
         }
     }
