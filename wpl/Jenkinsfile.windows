@@ -16,9 +16,6 @@ pipeline {
 	    pollSCM('H/5 * * * *')
     }
 
-    environment {
-        PATH = "c:/program files/go/bin;c:/program files/git/bin;%PATH%"
-    }
     stages {
               /*
         stage ('Checkout') {
@@ -36,7 +33,7 @@ pipeline {
 
         stage ('Build') {
             steps {
-                bat 'sh -c make'
+                bat 'set PATH="%PATH%;c:/program files/go/bin" && "c:/program files/git/bin/sh" -c make'
             }
         }
     }
