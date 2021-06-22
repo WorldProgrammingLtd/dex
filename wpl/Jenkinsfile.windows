@@ -53,7 +53,7 @@ spec:
             steps {
                 container('golang') {
                   sh 'mkdir bin'
-                  sh 'CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/dex.exe cmd/dex'
+                  sh 'CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/dex.exe ./cmd/dex'
                 }
             }
         }
