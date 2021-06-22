@@ -11,17 +11,15 @@ pipeline {
 	    disableConcurrentBuilds()
 	    buildDiscarder(logRotator(numToKeepStr: '20'))
 	    timestamps()
-	    skipDefaultCheckout()
-	    ansiColor('xterm')
     }
     triggers {
 	    pollSCM('H/5 * * * *')
     }
 
     stages {
+              /*
         stage ('Checkout') {
             steps {
-              /*
 		            checkout scm
 		            script {
 			            imageTag = sh(returnStdout: true,
@@ -29,9 +27,9 @@ pipeline {
 			            currentBuild.displayName = imageTag
 			            echo "Building dex:${imageTag}"
 		            }
-                */
             }
         }
+                */
 
         stage ('Build') {
             steps {
