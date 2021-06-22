@@ -23,7 +23,7 @@ pipeline {
             }
             post {
               success {
-                archiveArtifacts allowEmptyArchive: true, artifacts: 'bin/dex.exe'
+                archiveArtifacts allowEmptyArchive: true, artifacts: 'bin/dex.exe,web/**'
               }
             }
         }
