@@ -33,7 +33,7 @@ pipeline {
 
         stage ('Build') {
             steps {
-                sh 'make'
+                bat '"C:\\Program Files\\Git\\git-bash.exe" -c make'
             }
         }
     }
