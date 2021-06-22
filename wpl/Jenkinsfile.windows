@@ -17,23 +17,12 @@ pipeline {
     }
 
     stages {
-              /*
-        stage ('Checkout') {
-            steps {
-		            checkout scm
-		            script {
-			            imageTag = sh(returnStdout: true,
-				                      script: "git describe --tags --match 'v*.*.*'").trim()
-			            currentBuild.displayName = imageTag
-			            echo "Building dex:${imageTag}"
-		            }
-            }
-        }
-                */
-
         stage ('Build') {
             steps {
-                bat 'set PATH="%PATH%;c:/program files/go/bin" && "c:/program files/git/bin/sh" -c make'
+                bat '"c:/program files/git/bin/sh" -c "PATH=/c/programfiles/TDM-GCC-64/bin:$PATH make" '
+            }
+            post {
+                archiveArtifacts allowEmptyArchive: true, artifacts: 'bin/dex.exe'
             }
         }
     }
