@@ -22,7 +22,9 @@ pipeline {
                 bat '"c:/program files/git/bin/sh" -c "PATH=/c/programfiles/TDM-GCC-64/bin:$PATH make" '
             }
             post {
+              success {
                 archiveArtifacts allowEmptyArchive: true, artifacts: 'bin/dex.exe'
+              }
             }
         }
     }
