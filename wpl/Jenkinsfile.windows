@@ -21,6 +21,7 @@ pipeline {
     stages {
         stage ('Checkout') {
             steps {
+              /*
 		            checkout scm
 		            script {
 			            imageTag = sh(returnStdout: true,
@@ -28,6 +29,7 @@ pipeline {
 			            currentBuild.displayName = imageTag
 			            echo "Building dex:${imageTag}"
 		            }
+                */
             }
         }
 
